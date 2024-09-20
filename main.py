@@ -19,7 +19,7 @@ print(f"started-{now}")
 
 # Step1: Fetch the campaigns from CleverTap API
 st_time = now + timedelta(hours=1)
-end_time = now + timedelta(hours=3)
+end_time = st_time + timedelta(hours=1)
 
 campaigns = fetch_campaigns(st_time, end_time)
 
@@ -31,7 +31,7 @@ login(driver)
 campaign_info = get_user_base(driver, campaigns)
 
 # Step4: Compute the schedule time for each schedule
-campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, MAX_LIMIT)
+campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, MAX_LIMIT, st_time, end_time)
 
 # Step5: Update the schedule time for each schedule
 # update_scheduled_time(driver, campaign_schedules)

@@ -2,7 +2,7 @@ from datetime import timedelta
 from collections import defaultdict
 
 
-def compute_best_schedule(campaigns, max_limit):
+def compute_best_schedule(campaigns, max_limit, st_time, end_time):
     # Data structure to keep track of users being served per 5-minute interval
     global_schedule = defaultdict(int)
 
@@ -27,10 +27,10 @@ def compute_best_schedule(campaigns, max_limit):
         throttle = campaign.throttle
         start_time = campaign.original_schedule_time
 
-        try_count = 10
+        rescheduling = False
+
         # Find the earliest valid start time for the current campaign
-        while try_count > 0:
-            # temp_schedule = defaultdict(int)
+        while st_time <= start_time < end_time:
             temp_start_time = start_time
             temp_userbase = userbase
 
@@ -62,13 +62,15 @@ def compute_best_schedule(campaigns, max_limit):
                 campaign.preferred_schedule_time = start_time
                 break
             else:
-                # Adjust the start time to the next available slot
-                try_count -= 1
-                start_time += timedelta(minutes=5)
+                if not rescheduling:
+                    rescheduling = True
+                    start_time = st_time
+                else:
+                    start_time += timedelta(minutes=5)
 
-        if try_count == 0:
-            print(f"Can't schedule this campaign {campaign.campaign_id}")
-            campaign_notes_dict[campaign.campaign_id] = "Can't schedule this campaign as could not find time within system limits"
+        if campaign.preferred_schedule_time is None:
+            print(f"Can't schedule this campaign {campaign.campaign_id} between {st_time} - {end_time}")
+            campaign_notes_dict[campaign.campaign_id] = f"Can't schedule this campaign as could not find time window between {st_time} - {end_time}"
 
     print("After computing")
     for campaign in campaigns:

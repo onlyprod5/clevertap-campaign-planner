@@ -7,7 +7,7 @@ import os
 def fetch_campaigns(st_time, end_time):
     api_url = "https://api.clevertap.com/1/message/report.json"
 
-    formatted_time = datetime.now().strftime("%Y%m%d")
+    formatted_time = st_time.strftime("%Y%m%d")
 
     payload = {
         "from": formatted_time,
