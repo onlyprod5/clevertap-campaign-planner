@@ -7,8 +7,8 @@ class Campaign:
         self.preferred_schedule_time = preferred_schedule_time
 
     def __str__(self):
-        return (f"Campaign ID: {self.campaign_id}, Start Time: {self.original_schedule_time}, Total Audience: {self.total_audience}, Throttle: {self.throttle},"
-                f"Preferred Start Time {self.preferred_schedule_time}")
+        return (f"Campaign ID: {self.campaign_id}, Total Audience: {self.total_audience}, Throttle: {self.throttle}"
+                f"Original Schedule Time: {self.original_schedule_time}, Preferred Schedule Time {self.preferred_schedule_time}")
 
 class CampaignBuilder:
     def __init__(self):
@@ -37,7 +37,6 @@ class CampaignBuilder:
     def set_preferred_schedule_time(self, preferred_schedule_time):
         self.preferred_schedule_time = preferred_schedule_time
         return self
-
 
     def build(self):
         return Campaign(self.campaign_id, self.total_audience, self.throttle, self.original_schedule_time, self.preferred_schedule_time)

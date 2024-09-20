@@ -1,8 +1,9 @@
 from typing import List
-from campaign import Campaign, CampaignBuilder
 from datetime import datetime
 import requests
 import os
+
+from campaign import Campaign, CampaignBuilder
 
 def fetch_campaigns(st_time, end_time):
     api_url = "https://api.clevertap.com/1/message/report.json"

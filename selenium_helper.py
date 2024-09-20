@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def setup_browser():
     options = webdriver.ChromeOptions()
-    #
+
     options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument("--disable-gpu")
@@ -70,7 +70,6 @@ def get_totp_instance():
     return pyotp.TOTP(secret)
 
 def get_user_base(driver, campaigns):
-
     for campaign in campaigns:
         campaign_id = campaign.campaign_id
         now = datetime.now()
@@ -86,7 +85,7 @@ def get_user_base(driver, campaigns):
         who_drawer.click()
 
         sleep(1)
-        # print(f"cc - {campaign_id}")
+
         edit_btn = driver.find_element(By.XPATH, "//h1[text()='Target Segment']/following-sibling::*[.//span[text()='Edit']]")
         edit_btn.click()
 
@@ -108,7 +107,6 @@ def get_user_base(driver, campaigns):
 
         userbase = int(userbase)
 
-        #
         when_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/button")
         when_drawer.click()
 
@@ -121,19 +119,14 @@ def get_user_base(driver, campaigns):
 
             if match:
                 throttle = int(match.group(1))
-                print(f"Extracted number: {throttle}")
 
         except NoSuchElementException:
-            print("Element is not present.")
-
-        print(f'time taken by get_user_base: {datetime.now() - now}')
+            print(f"Throttle limit is not present for campaign {campaign.campaign_id}")
 
         campaign.total_audience = userbase
         campaign.throttle = throttle
 
-    print("after get user base:")
-    for campaign in campaigns:
-        print(campaign)
+        print(f'time taken by get_user_base: {datetime.now() - now}')
 
     return campaigns
 
