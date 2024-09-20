@@ -66,7 +66,7 @@ def login(driver):
     return driver.get_cookies()
 
 def get_totp_instance():
-    secret = os.getenv('OTP_SECRET')  # Clevertap 2FA auth secret
+    secret = os.getenv('OTP_SECRET')
     return pyotp.TOTP(secret)
 
 def get_user_base(driver, campaigns):
