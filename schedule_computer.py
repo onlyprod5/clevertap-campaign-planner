@@ -30,7 +30,7 @@ def compute_best_schedule(campaigns, max_limit):
         try_count = 10
         # Find the earliest valid start time for the current campaign
         while try_count > 0:
-            temp_schedule = defaultdict(int)
+            # temp_schedule = defaultdict(int)
             temp_start_time = start_time
             temp_userbase = userbase
 
@@ -55,9 +55,9 @@ def compute_best_schedule(campaigns, max_limit):
                     temp_userbase -= serve
 
                 if start_time == campaign.original_schedule_time:
-                    campaign_notes_dict[campaign.campaign_id] = "No change"
+                    campaign_notes_dict[campaign.campaign_id] = "NO CHANGE"
                 else:
-                    campaign_notes_dict[campaign.campaign_id] = "New time"
+                    campaign_notes_dict[campaign.campaign_id] = "NEW TIME"
 
                 campaign.preferred_schedule_time = start_time
                 break
@@ -75,6 +75,3 @@ def compute_best_schedule(campaigns, max_limit):
         print(campaign)
 
     return campaigns, campaign_notes_dict
-
-# if __name__ == '__main__':
-#     compute_best_schedule({})

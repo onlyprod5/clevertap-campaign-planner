@@ -1,5 +1,6 @@
 from datetime import datetime
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 from schedule_computer import compute_best_schedule
@@ -9,14 +10,18 @@ from selenium_helper import setup_browser, quit_browser, get_user_base, update_s
 from slack_helper import send_message
 
 MAX_LIMIT=1500000
-load_dotenv()
 
+load_dotenv()
 
 now = datetime.now()
 
 print(f"started-{now}")
+
 # Step1: Fetch the campaigns from CleverTap API
-campaigns = fetch_campaigns()
+st_time = now + timedelta(hours=1)
+end_time = now + timedelta(hours=3)
+
+campaigns = fetch_campaigns(st_time, end_time)
 
 # Step2: Setup browser and login to CleverTap
 driver = setup_browser()
@@ -30,7 +35,7 @@ campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, M
 
 # Step5: Update the schedule time for each schedule
 # update_scheduled_time(driver, campaign_schedules)
-send_message(campaign_schedules, campaign_notes_dict)
+send_message(campaign_schedules, campaign_notes_dict, st_time, end_time)
 
 # Step6: Quit browser
 quit_browser(driver)

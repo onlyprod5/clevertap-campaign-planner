@@ -4,12 +4,14 @@ from datetime import datetime
 import requests
 import os
 
-def fetch_campaigns():
+def fetch_campaigns(st_time, end_time):
     api_url = "https://api.clevertap.com/1/message/report.json"
 
+    formatted_time = datetime.now().strftime("%Y%m%d")
+
     payload = {
-        "from": "20240922", #"20241016",
-        "to": "20240922",
+        "from": formatted_time,
+        "to": formatted_time,
         "status": [ "scheduled" ]
     }
 
@@ -27,12 +29,15 @@ def fetch_campaigns():
         data = response.json()
 
         for campaign in data.get('messages', []):
-            campaigns.append(
-                CampaignBuilder().
-                    set_campaign_id(campaign['message id']).
-                    set_original_schedule_time(datetime.strptime(campaign['start_date'], "%d %b, %Y %H:%M:%S")).
-                    build()
-                )
+            campaign_time = datetime.strptime(campaign['start_date'], "%d %b, %Y %H:%M:%S")
+
+            if st_time <= campaign_time <= end_time:
+                campaigns.append(
+                    CampaignBuilder().
+                        set_campaign_id(campaign['message id']).
+                        set_original_schedule_time(campaign_time).
+                        build()
+                    )
     else:
         print(f"Failed to fetch campaigns. Status code: {response.status_code}")
         print(f"Response: {response.text}")

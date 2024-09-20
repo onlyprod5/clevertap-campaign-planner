@@ -5,21 +5,21 @@ from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from campaign import Campaign, CampaignBuilder
-
-slack_token = os.getenv('SLACK_TOKEN')
-client = WebClient(token=slack_token)
+from campaign import CampaignBuilder
 
 file_path = 'campaigns.csv'
 
-def send_message(campaigns, campaign_notes):
+def send_message(campaigns, campaign_notes, st_time, end_time):
+    slack_token = os.getenv('SLACK_TOKEN')
+    client = WebClient(token=slack_token)
+
     write_campaigns_to_csv(campaigns, campaign_notes)
     try:
         response = client.files_upload_v2(
             channel='C07MPL2QFKR',
             file=file_path,
             title="📅 Upcoming Campaign Schedule",
-            initial_comment="🌟 Here are the campaign details along with our suggested timings"
+            initial_comment=f"🌟 Here are the campaign details which were scheduled between {st_time.strftime('%d %b %Y %I:%M%p')} and {end_time.strftime('%d %b %Y %I:%M%p')}, along with our suggested timings"
         )
         print(response)
     except SlackApiError as e:
