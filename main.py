@@ -12,12 +12,12 @@ MAX_LIMIT=1500000
 
 load_dotenv()
 
-now = datetime.now()
+now = datetime.now().replace(second=0, microsecond=0)
 
 print(f"started-{now}")
 
 st_time = now + timedelta(hours=1)
-end_time = st_time + timedelta(hours=1)
+end_time = st_time + timedelta(hours=1, minutes=-1)
 
 # Step1: Fetch the campaigns from CleverTap API
 campaigns = fetch_campaigns(st_time, end_time)

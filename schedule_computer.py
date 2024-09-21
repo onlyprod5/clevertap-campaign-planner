@@ -29,7 +29,7 @@ def compute_best_schedule(campaigns, max_limit, st_time, end_time):
         started_rescheduling = False
 
         # Find the earliest valid start time for the current campaign
-        while st_time <= start_time < end_time:
+        while st_time <= start_time <= end_time:
             temp_start_time = start_time
             temp_userbase = userbase
 
