@@ -1,7 +1,7 @@
 myenv/
 .DS_Store
 .idea*
-output.log
 campaigns.csv
 __pycache__/
 .env
+*.log

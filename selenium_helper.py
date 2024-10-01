@@ -132,9 +132,6 @@ def get_user_base(driver, campaigns):
 
 def update_scheduled_time(driver, campaign_schedules):
     for campaign in campaign_schedules:
-        print(campaign.campaign_id, campaign.original_schedule_time)
-        sleep(10)
-        now = datetime.now()
         driver.get(f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign.campaign_id}/edit")
 
         sleep(2)
@@ -143,26 +140,24 @@ def update_scheduled_time(driver, campaign_schedules):
         when_drawer.click()
 
         sleep(1)
-        edit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/div/div/div/div/div[1]/div/div[1]/div")
+        edit_btn = driver.find_element(By.XPATH,"//h1[text()='Date and time']/following-sibling::*[.//span[text()='Edit']]")
         edit_btn.click()
 
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/div/div/div/div/div[1]/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div[1]/div/div[4]/div/label/input"))
+            EC.visibility_of_element_located((By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input"))
         )
 
-        time = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/div/div/div/div/div[1]/div/div[1]/div/div/div/div/div/div/div/div/div/div/div[3]/div[1]/div/div[4]/div/label/input")
+        time = driver.find_element(By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input")
         time.clear()
         time.send_keys(f"{campaign.original_schedule_time.hour}:{campaign.original_schedule_time.minute}")
 
         sleep(100)
-        time_submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/div/div/div/div/div[1]/div/div[1]/div/div/div/div/button")
+        time_submit_btn = driver.find_element(By.XPATH,"//span[text()='Done']")
         time_submit_btn.click()
 
         sleep(1)
-        submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[5]/div/div/div/div/div[1]/div[2]/button")
+        submit_btn = driver.find_element(By.XPATH,"//span[text()='All Done!']//following-sibling::*/following-sibling::*")
         submit_btn.click()
 
         submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div[3]/div/div/div[2]/button[1]")
         submit_btn.click()
-
-        print(f'time taken by update_schedule_time: {datetime.now() - now}')

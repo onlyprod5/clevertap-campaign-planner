@@ -67,8 +67,8 @@ def compute_best_schedule(campaigns, max_limit, st_time, end_time):
                     start_time += timedelta(minutes=5)
 
         if campaign.preferred_schedule_time is None:
-            print(f"Can't schedule this campaign {campaign.campaign_id} between {st_time} - {end_time}")
-            campaign_notes_dict[campaign.campaign_id] = f"Can't schedule this campaign as could not find time window between {st_time} - {end_time}"
+            print(f"Exceeded aligned limit for campaign_id {campaign.campaign_id} between {st_time} - {end_time}")
+            campaign_notes_dict[campaign.campaign_id] = "EXCEEDED ALIGNED LIMIT"
 
     print("After computing preferred schedule time")
     for campaign in campaigns:
