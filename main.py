@@ -12,7 +12,7 @@ MAX_LIMIT=1500000
 
 load_dotenv()
 
-now = datetime.now().replace(second=0, microsecond=0)
+now = datetime.now().replace(minute=0, second=0, microsecond=0)
 
 print(f"started-{now}")
 

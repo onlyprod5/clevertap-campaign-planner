@@ -81,6 +81,8 @@ def get_user_base(driver, campaigns):
             EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button"))
         )
 
+        sleep(2)
+
         who_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button")
         who_drawer.click()
 
