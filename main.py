@@ -1,6 +1,7 @@
 from datetime import datetime
 from dotenv import load_dotenv
 from datetime import timedelta
+from time import sleep
 
 from schedule_computer import compute_best_schedule
 from api_helper import fetch_campaigns
@@ -32,11 +33,21 @@ campaign_info = get_user_base(driver, campaigns)
 # Step4: Compute the preferred schedule time for each schedule
 campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, MAX_LIMIT, st_time, end_time)
 
-# Step5: Slack/update the schedule time for each schedule
-# update_scheduled_time(driver, campaign_schedules)
+# Step5: Send the preferred schedule time for each schedule on slack
 send_message(campaign_schedules, campaign_notes_dict, st_time, end_time)
 
-# Step6: Quit browser
-quit_browser(driver)
+print(f'first pass: total_time: {datetime.now() - now}')
 
-print(f'total_time: {datetime.now() - now}')
+# if len(campaign_schedules) != 0:
+    # Step6: Sleep for some 15-20 minutes & then update the schedule.
+    # sleep(15*60)
+
+    # now = datetime.now()
+    # campaign_update_status = update_scheduled_time(driver, campaign_schedules)
+
+    # Step7: update the schedule time for each schedule
+    # send_message(campaign_schedules, campaign_update_status, st_time, end_time)
+    # print(f'final update: total_time: {datetime.now() - now}')
+
+# Quit browser
+quit_browser(driver)

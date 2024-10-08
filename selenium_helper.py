@@ -133,7 +133,13 @@ def get_user_base(driver, campaigns):
     return campaigns
 
 def update_scheduled_time(driver, campaign_schedules):
+    campaign_update_status = {}
+
     for campaign in campaign_schedules:
+
+        if campaign.preferred_schedule_time is None or campaign.preferred_schedule_time == campaign.original_schedule_time:
+            continue
+
         driver.get(f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign.campaign_id}/edit")
 
         sleep(2)
@@ -163,3 +169,13 @@ def update_scheduled_time(driver, campaign_schedules):
 
         submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div[3]/div/div/div[2]/button[1]")
         submit_btn.click()
+
+        sleep(3)
+
+        if True:
+            campaign_update_status[campaign.campaign_id] = 'UPDATED'
+        else:
+            campaign_update_status[campaign.campaign_id] = 'NOT_UPDATED'
+
+
+    return campaign_update_status

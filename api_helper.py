@@ -39,6 +39,7 @@ def fetch_campaigns(st_time, end_time):
                             CampaignBuilder().
                             set_campaign_id(campaign['message id']).
                             set_original_schedule_time(campaign_time).
+                            set_channel(campaign['channel'].lower()).
                             build()
                         )
 

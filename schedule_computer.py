@@ -6,8 +6,10 @@ def compute_best_schedule(campaigns, max_limit, st_time, end_time):
     # Data structure to keep track of users being served per 5-minute interval (across all campaigns)
     global_schedule = defaultdict(int)
 
+    notification_order = { 'push': 1, 'sms': 2, '': 3 }
+
     # Sort campaigns by start time
-    campaigns.sort(key=lambda c: (c.original_schedule_time))
+    campaigns.sort(key=lambda c: (c.original_schedule_time, notification_order[c.channel]))
 
     # Function to get the time slots a campaign will occupy (for ex: [3:00, 3:05, 3:10, 3:15])
     def get_time_slots(start_time, userbase, throttle):

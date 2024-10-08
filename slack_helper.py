@@ -8,6 +8,16 @@ from slack_sdk.errors import SlackApiError
 file_path = 'campaigns.csv'
 channel_id = 'C07MPL2QFKR' # 'C07PR125S6M'
 
+# def send_update_message(campaigns, campaign_notes):
+#     write_campaigns_to_csv(campaigns, campaign_notes)
+#     try:
+#         file = client.files_upload_v2(
+#             channel=channel_id,
+#             # thread_ts=resp['ts'],
+#             file=file_path,
+#             title="📅 Upcoming Campaign Schedule",
+#         )
+
 def send_message(campaigns, campaign_notes, st_time, end_time):
     slack_bot_token = os.getenv('SLACK_BOT_TOKEN')
     client = WebClient(token=slack_bot_token)
@@ -119,7 +129,7 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
                 os.remove(file_path)
 
 def write_campaigns_to_csv(campaigns, campaign_notes):
-    header = ['Campaign ID', 'Total Audience', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Notes']
+    header = ['Campaign ID', 'Total Audience', 'Channel', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Notes']
 
     # Open the file in write mode
     with open(file_path, mode='w', newline='') as file:
@@ -131,6 +141,7 @@ def write_campaigns_to_csv(campaigns, campaign_notes):
             writer.writerow([
                 campaign.campaign_id,
                 campaign.total_audience,
+                campaign.channel,
                 campaign.throttle,
                 campaign.original_schedule_time,
                 campaign.preferred_schedule_time,
