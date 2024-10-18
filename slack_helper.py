@@ -108,7 +108,7 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
                         "elements": [
                             {
                                 "type": "plain_text",
-                                "text": "🔄 Note: If not approved within the next 15 mins, the campaigns will be auto-rescheduled[THIS FEATURE IS NOT YET LIVE].",
+                                "text": "🔄 Note: If not approved within the next 15 mins, the campaigns will be auto-rescheduled[**Auto-rescheduling is NOT LIVE yet].",
                                 "emoji": True
                             }
                         ]

@@ -136,46 +136,49 @@ def update_scheduled_time(driver, campaign_schedules):
     campaign_update_status = {}
 
     for campaign in campaign_schedules:
+        try:
+            if campaign.preferred_schedule_time is None or campaign.preferred_schedule_time == campaign.original_schedule_time:
+                continue
 
-        if campaign.preferred_schedule_time is None or campaign.preferred_schedule_time == campaign.original_schedule_time:
-            continue
+            driver.get(f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign.campaign_id}/edit")
 
-        driver.get(f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign.campaign_id}/edit")
+            sleep(2)
 
-        sleep(2)
+            when_drawer = driver.find_element(By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/button")
+            when_drawer.click()
 
-        when_drawer = driver.find_element(By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/button")
-        when_drawer.click()
+            sleep(1)
+            edit_btn = driver.find_element(By.XPATH,"//h1[text()='Date and time']/following-sibling::*[.//span[text()='Edit']]")
+            edit_btn.click()
 
-        sleep(1)
-        edit_btn = driver.find_element(By.XPATH,"//h1[text()='Date and time']/following-sibling::*[.//span[text()='Edit']]")
-        edit_btn.click()
+            WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input"))
+            )
 
-        WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input"))
-        )
+            time = driver.find_element(By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input")
+            time.clear()
+            time.send_keys(f"{campaign.preferred_schedule_time.hour}:{campaign.preferred_schedule_time.minute}")
 
-        time = driver.find_element(By.XPATH, "//div[text()='A fixed time']/../../../../../../.././following-sibling::*//input")
-        time.clear()
-        time.send_keys(f"{campaign.original_schedule_time.hour}:{campaign.original_schedule_time.minute}")
+            sleep(100)
+            time_submit_btn = driver.find_element(By.XPATH,"//span[text()='Done']")
+            time_submit_btn.click()
 
-        sleep(100)
-        time_submit_btn = driver.find_element(By.XPATH,"//span[text()='Done']")
-        time_submit_btn.click()
+            sleep(1)
+            submit_btn = driver.find_element(By.XPATH,"//span[text()='All Done!']//following-sibling::*/following-sibling::*")
+            submit_btn.click()
 
-        sleep(1)
-        submit_btn = driver.find_element(By.XPATH,"//span[text()='All Done!']//following-sibling::*/following-sibling::*")
-        submit_btn.click()
+            submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div[3]/div/div/div[2]/button[1]")
+            submit_btn.click()
 
-        submit_btn = driver.find_element(By.XPATH,"/html/body/div[3]/div[3]/div/div/div[2]/button[1]")
-        submit_btn.click()
+            sleep(3)
 
-        sleep(3)
-
-        if True:
-            campaign_update_status[campaign.campaign_id] = 'UPDATED'
-        else:
-            campaign_update_status[campaign.campaign_id] = 'NOT_UPDATED'
+            if True:
+                campaign_update_status[campaign.campaign_id] = 'UPDATED'
+            else:
+                campaign_update_status[campaign.campaign_id] = 'NOT_UPDATED'
+        except Exception as e:
+            print(f'ERROR - {e}')
+            campaign_update_status[campaign.campaign_id] = str(e)
 
 
     return campaign_update_status

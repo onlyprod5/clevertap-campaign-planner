@@ -10,10 +10,11 @@ from slack_helper import send_message
 
 
 MAX_LIMIT=1500000
+MAX_LIMIT_INTERVAL_MINUTES=5
 
 load_dotenv()
 
-now = datetime.now().replace(minute=0, second=0, microsecond=0)
+now = datetime.now() #.replace(minute=0, second=0, microsecond=0)
 
 print(f"started-{now}")
 
@@ -31,7 +32,7 @@ login(driver)
 campaign_info = get_user_base(driver, campaigns)
 
 # Step4: Compute the preferred schedule time for each schedule
-campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, MAX_LIMIT, st_time, end_time)
+campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, MAX_LIMIT, MAX_LIMIT_INTERVAL_MINUTES, st_time, end_time)
 
 # Step5: Send the preferred schedule time for each schedule on slack
 send_message(campaign_schedules, campaign_notes_dict, st_time, end_time)
