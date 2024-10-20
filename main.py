@@ -54,7 +54,7 @@ def process_campaigns():
 
     st_time, end_time = get_st_and_end_time_schedule(time_delta)
     if st_time == "-1" or end_time == "-1":
-        # send_log_to_newrelic()
+        send_log_to_newrelic()
         print(f"No schedule found for hour of {time_delta}")
         return
 
@@ -80,7 +80,7 @@ def process_campaigns():
     print(f'first pass: total_time: {datetime.now() - now}')
 
     # Send event to newrelic
-    # send_log_to_newrelic()
+    send_log_to_newrelic()
 
     # if len(campaign_schedules) != 0:
         # Step6: Sleep for some 15-20 minutes & then update the schedule.
