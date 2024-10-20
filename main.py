@@ -38,7 +38,7 @@ def get_st_and_end_time_schedule(time):
         if start_hour == time_hour:
             return start, end
 
-    return "-1", "-1"
+    return None, None
 
 def process_campaigns():
     max_limit=1500000
@@ -53,7 +53,7 @@ def process_campaigns():
     time_delta = now + timedelta(hours=1)
 
     st_time, end_time = get_st_and_end_time_schedule(time_delta)
-    if st_time == "-1" or end_time == "-1":
+    if st_time is None or end_time is None:
         send_log_to_newrelic()
         print(f"No schedule found for hour of {time_delta}")
         return

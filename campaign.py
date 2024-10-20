@@ -8,6 +8,9 @@ class Campaign:
         self.preferred_schedule_time = preferred_schedule_time
         self.channel = channel
 
+    def get_throttle_per_minute(self):
+        return self.throttle / 5  # todo: make this unit variable/dynamic later.
+
     def __str__(self):
         return (f"Campaign ID: {self.campaign_id}, Name: {self.name}, Total Audience: {self.total_audience}, Throttle: {self.throttle}"
                 f"Original Schedule Time: {self.original_schedule_time}, Preferred Schedule Time {self.preferred_schedule_time}")
