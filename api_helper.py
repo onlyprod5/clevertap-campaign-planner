@@ -1,3 +1,4 @@
+import json
 from typing import List
 from datetime import datetime
 import requests
@@ -62,3 +63,28 @@ def fetch_campaigns(st_time, end_time):
         print(campaign)
 
     return campaigns
+
+
+def send_log_to_newrelic():
+    url = "https://log-api.newrelic.com/log/v1"
+
+    api_key = os.getenv('NR_INGEST_KEY')
+
+    log_entry = {
+        "message": "Ran campaign schedule planner script",
+        "log.level": "info",
+        "service": "campaign-schedule-service",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Api-Key": api_key
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps([log_entry]))
+    if response.status_code == 202:
+        print("Log sent successfully!")
+    else:
+        print("Failed to send log:", response.status_code, response.text)
+

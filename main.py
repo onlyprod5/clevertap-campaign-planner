@@ -4,7 +4,7 @@ from datetime import timedelta
 from time import sleep
 
 from schedule_computer import compute_best_schedule
-from api_helper import fetch_campaigns
+from api_helper import fetch_campaigns, send_log_to_newrelic
 from selenium_helper import setup_browser, quit_browser, get_user_base, update_scheduled_time, login
 from slack_helper import send_message
 
@@ -38,6 +38,9 @@ campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, M
 send_message(campaign_schedules, campaign_notes_dict, st_time, end_time)
 
 print(f'first pass: total_time: {datetime.now() - now}')
+
+# Send event to newrelic
+send_log_to_newrelic()
 
 # if len(campaign_schedules) != 0:
     # Step6: Sleep for some 15-20 minutes & then update the schedule.
