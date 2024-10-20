@@ -71,67 +71,78 @@ def get_totp_instance():
 
 def get_user_base(driver, campaigns):
     for campaign in campaigns:
-        try:
-            campaign_id = campaign.campaign_id
-            now = datetime.now()
+        try_count = 2
+        captured_exception = None
 
-            url = f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign_id}/edit"
-
-            driver.get(url)
-            WebDriverWait(driver, 10).until(
-                EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button"))
-            )
-
-            sleep(2)
-
-            who_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button")
-            who_drawer.click()
-
-            sleep(1)
-
-            edit_btn = driver.find_element(By.XPATH, "//h1[text()='Target Segment']/following-sibling::*[.//span[text()='Edit']]")
-            edit_btn.click()
-
-            WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located((By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/div/div/div/div/div[2]/div/div[3]/div[4]/button"))
-            )
-
-            calculate_userbase_btn = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/div/div/div/div/div[2]/div/div[3]/div[4]/button")
-            calculate_userbase_btn.click()
-
-            WebDriverWait(driver, 60).until(
-                EC.visibility_of_element_located((By.XPATH, "//h1[text()='Estimated reach']/../..//span[text()='Total Reach' or text()='Total Users']/preceding-sibling::span"))
-            )
-
-            userbase_text = driver.find_element(By.XPATH, "//h1[text()='Estimated reach']/../..//span[text()='Total Reach' or text()='Total Users']/preceding-sibling::span")
-            userbase = userbase_text.text
-
-            userbase = userbase.replace(",", "")
-
-            userbase = int(userbase)
-
-            sleep(1)
-            when_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/button")
-            when_drawer.click()
-
-            sleep(1)
-
-            throttle = 2**31 - 1
+        while try_count > 0:
+            captured_exception = None
             try:
-                element = driver.find_element(By.XPATH, "//h1[text()='Throttle limits']/..//span[contains(text(), 'per 5 mins')]")
-                match = re.match(r'^(\d+)\s+messages per 5 mins$', element.text)
+                campaign_id = campaign.campaign_id
+                now = datetime.now()
 
-                if match:
-                    throttle = int(match.group(1))
+                url = f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign_id}/edit"
 
-            except NoSuchElementException:
-                print(f"Throttle limit is not present for campaign {campaign.campaign_id}")
+                driver.get(url)
+                WebDriverWait(driver, 10).until(
+                    EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button"))
+                )
 
-            campaign.total_audience = userbase
-            campaign.throttle = throttle
-        except Exception as e:
+                sleep(2)
+
+                who_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/button")
+                who_drawer.click()
+
+                sleep(1)
+
+                edit_btn = driver.find_element(By.XPATH, "//h1[text()='Target Segment']/following-sibling::*[.//span[text()='Edit']]")
+                edit_btn.click()
+
+                WebDriverWait(driver, 5).until(
+                    EC.visibility_of_element_located((By.XPATH,"/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/div/div/div/div/div[2]/div/div[3]/div[4]/button"))
+                )
+
+                calculate_userbase_btn = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[2]/div/div/div/div/div/div[2]/div/div[3]/div[4]/button")
+                calculate_userbase_btn.click()
+
+                WebDriverWait(driver, 60).until(
+                    EC.visibility_of_element_located((By.XPATH, "//h1[text()='Estimated reach']/../..//span[text()='Total Reach' or text()='Total Users']/preceding-sibling::span"))
+                )
+
+                userbase_text = driver.find_element(By.XPATH, "//h1[text()='Estimated reach']/../..//span[text()='Total Reach' or text()='Total Users']/preceding-sibling::span")
+                userbase = userbase_text.text
+
+                userbase = userbase.replace(",", "")
+
+                userbase = int(userbase)
+
+                sleep(1)
+                when_drawer = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/section/div/div/div[2]/div/div[4]/div/button")
+                when_drawer.click()
+
+                sleep(1)
+
+                throttle = 2**31 - 1
+                try:
+                    element = driver.find_element(By.XPATH, "//h1[text()='Throttle limits']/..//span[contains(text(), 'per 5 mins')]")
+                    match = re.match(r'^(\d+)\s+messages per 5 mins$', element.text)
+
+                    if match:
+                        throttle = int(match.group(1))
+
+                except NoSuchElementException:
+                    print(f"Throttle limit is not present for campaign {campaign.campaign_id}")
+
+                campaign.total_audience = userbase
+                campaign.throttle = throttle
+
+                break
+            except Exception as e:
+                try_count -= 1
+                captured_exception = e
+
+        if try_count == 0 and captured_exception is not None:
             print(f"Exception occurred while getting userbase of campaign : {campaign.campaign_id}")
-            raise e
+            raise captured_exception
 
         print(f'time taken by get_user_base: {datetime.now() - now}')
 

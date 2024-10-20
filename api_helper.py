@@ -56,7 +56,7 @@ def fetch_campaigns(st_time, end_time):
             continue
 
     if try_count == 0:
-        raise 'exception occurred while calling ct api'
+        raise RuntimeError('exception occurred while calling ct api')
 
     print("Campaigns in the time frame")
     for campaign in campaigns:
