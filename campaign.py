@@ -1,6 +1,7 @@
 class Campaign:
-    def __init__(self, campaign_id, total_audience, throttle, original_schedule_time, preferred_schedule_time, channel):
+    def __init__(self, campaign_id, name, total_audience, throttle, original_schedule_time, preferred_schedule_time, channel):
         self.campaign_id = campaign_id
+        self.name = name
         self.total_audience = total_audience
         self.throttle = throttle
         self.original_schedule_time = original_schedule_time
@@ -8,7 +9,7 @@ class Campaign:
         self.channel = channel
 
     def __str__(self):
-        return (f"Campaign ID: {self.campaign_id}, Total Audience: {self.total_audience}, Throttle: {self.throttle}"
+        return (f"Campaign ID: {self.campaign_id}, Name: {self.name}, Total Audience: {self.total_audience}, Throttle: {self.throttle}"
                 f"Original Schedule Time: {self.original_schedule_time}, Preferred Schedule Time {self.preferred_schedule_time}")
 
 class CampaignBuilder:
@@ -19,9 +20,14 @@ class CampaignBuilder:
         self.campaign_id = None
         self.preferred_schedule_time = None
         self.channel = None
+        self.name = None
 
     def set_campaign_id(self, campaign_id):
         self.campaign_id = campaign_id
+        return self
+
+    def set_name(self, name):
+        self.name = name
         return self
 
     def set_channel(self, channel):
@@ -45,4 +51,4 @@ class CampaignBuilder:
         return self
 
     def build(self):
-        return Campaign(self.campaign_id, self.total_audience, self.throttle, self.original_schedule_time, self.preferred_schedule_time, self.channel)
+        return Campaign(self.campaign_id, self.name, self.total_audience, self.throttle, self.original_schedule_time, self.preferred_schedule_time, self.channel)

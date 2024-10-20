@@ -129,7 +129,7 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
                 os.remove(file_path)
 
 def write_campaigns_to_csv(campaigns, campaign_notes):
-    header = ['Campaign ID', 'Total Audience', 'Channel', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Notes']
+    header = ['Campaign ID', 'Campaign Name', 'Total Audience', 'Channel', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Notes']
 
     # Open the file in write mode
     with open(file_path, mode='w', newline='') as file:
@@ -140,6 +140,7 @@ def write_campaigns_to_csv(campaigns, campaign_notes):
         for campaign in campaigns:
             writer.writerow([
                 campaign.campaign_id,
+                campaign.name,
                 campaign.total_audience,
                 campaign.channel,
                 campaign.throttle,

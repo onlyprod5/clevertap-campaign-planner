@@ -7,7 +7,6 @@ load_dotenv()
 
 app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 
-# Listen for a button click (interaction event)
 @app.action("approve_campaign_schedule_action")
 def handle_button_click(ack, body, say, client):
     ack()
