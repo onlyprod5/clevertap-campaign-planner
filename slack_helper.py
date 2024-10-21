@@ -1,3 +1,4 @@
+import json
 import os
 import csv
 from time import sleep
@@ -6,20 +7,11 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 file_path = 'campaigns.csv'
-channel_id = 'C07MPL2QFKR' # 'C07PR125S6M'
-
-# def send_update_message(campaigns, campaign_notes):
-#     write_campaigns_to_csv(campaigns, campaign_notes)
-#     try:
-#         file = client.files_upload_v2(
-#             channel=channel_id,
-#             # thread_ts=resp['ts'],
-#             file=file_path,
-#             title="📅 Upcoming Campaign Schedule",
-#         )
 
 def send_message(campaigns, campaign_notes, st_time, end_time):
     slack_bot_token = os.getenv('SLACK_BOT_TOKEN')
+    channel_id = os.getenv('SLACK_CHANNEL_ID')
+
     client = WebClient(token=slack_bot_token)
 
     if len(campaigns) == 0:
@@ -36,7 +28,6 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
 
             file = client.files_upload_v2(
                 channel=channel_id,
-                # thread_ts=resp['ts'],
                 file=file_path,
                 title="📅 Upcoming Campaign Schedule",
             )
@@ -115,13 +106,6 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
                     }
                 ]
             )
-
-            # client.files_upload_v2(
-            #     channel=channel_id,
-            #     thread_ts= resp['ts'],
-            #     file = file_path,
-            #     title = "📅 Upcoming Campaign Schedule",
-            # )
         except SlackApiError as e:
             print(f"Error sending the campaign schedule message: {e.response['error']}")
         finally:

@@ -32,7 +32,7 @@ def login(driver):
     now = datetime.now()
     totp = get_totp_instance()
 
-    driver.get("https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns")
+    driver.get(f"https://eu1.dashboard.clevertap.com/{os.getenv('CT_ACC_ID')}/campaigns")
 
     sleep(1)
 
@@ -81,7 +81,7 @@ def get_user_base(driver, campaigns):
                 campaign_id = campaign.campaign_id
                 now = datetime.now()
 
-                url = f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign_id}/edit"
+                url = f"https://eu1.dashboard.clevertap.com/{os.getenv('CT_ACC_ID')}/campaigns/campaign/{campaign_id}/edit"
 
                 driver.get(url)
                 WebDriverWait(driver, 10).until(
@@ -164,7 +164,7 @@ def update_scheduled_time(driver, campaign_schedules, campaign_notes):
             if campaign.preferred_schedule_time is None or campaign.preferred_schedule_time == campaign.original_schedule_time:
                 continue
 
-            driver.get(f"https://eu1.dashboard.clevertap.com/65W-5R5-4R6Z/campaigns/campaign/{campaign.campaign_id}/edit")
+            driver.get(f"https://eu1.dashboard.clevertap.com/{os.getenv('CT_ACC_ID')}/campaigns/campaign/{campaign.campaign_id}/edit")
 
             sleep(2)
 
