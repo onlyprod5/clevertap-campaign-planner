@@ -1,6 +1,8 @@
 from datetime import timedelta
 from collections import defaultdict
 
+import constants
+
 
 def get_existing_schedule_per_min(campaigns):
     global_schedule = defaultdict(int)
@@ -53,7 +55,7 @@ def get_campaign_preferred_time_and_status(campaign, global_schedule, max_limit_
         slots = get_time_slots(start_time, userbase, throttle)
         if can_fit_in_schedule(global_schedule, slots, userbase, throttle, max_limit_per_min):
             populate_schedule(global_schedule, slots, userbase, throttle)
-            return start_time, "NO CHANGE" if start_time == campaign.original_schedule_time else "NEW TIME"
+            return start_time, constants.NO_CHANGE if start_time == campaign.original_schedule_time else constants.NEW_TIME
         else:
             if not started_rescheduling:
                 started_rescheduling = True
@@ -61,7 +63,7 @@ def get_campaign_preferred_time_and_status(campaign, global_schedule, max_limit_
             else:
                 start_time += timedelta(minutes=1)
 
-    return None, "EXCEEDED ALIGNED LIMIT"
+    return None, constants.EXCEEDED_ALIGNED_LIMIT
 
 def compute_best_schedule(campaigns, max_limit, max_limit_interval_minutes, st_time, end_time):
     max_limit_per_min = max_limit / max_limit_interval_minutes

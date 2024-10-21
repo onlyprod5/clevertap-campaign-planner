@@ -66,7 +66,7 @@ def fetch_campaigns(st_time, end_time):
     return campaigns
 
 
-def send_log_to_newrelic():
+def send_script_success_log_to_newrelic():
     url = "https://log-api.newrelic.com/log/v1"
 
     api_key = os.getenv('NR_INGEST_KEY')
@@ -85,7 +85,7 @@ def send_log_to_newrelic():
 
     response = requests.post(url, headers=headers, data=json.dumps([log_entry]))
     if response.status_code == 202:
-        print("Log sent successfully!")
+        print("log sent successfully")
     else:
-        print("Failed to send log:", response.status_code, response.text)
+        print("failed to send log:", response.status_code, response.text)
 

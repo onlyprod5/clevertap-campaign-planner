@@ -4,7 +4,7 @@ from datetime import timedelta
 from time import sleep
 
 from schedule_computer import compute_best_schedule
-from api_helper import fetch_campaigns, send_log_to_newrelic
+from api_helper import fetch_campaigns, send_script_success_log_to_newrelic
 from selenium_helper import setup_browser, quit_browser, get_user_base, update_scheduled_time, login
 from slack_helper import send_message
 
@@ -30,6 +30,10 @@ schedules = [
 ]
 
 
+def get_current_time():
+    return datetime.now().replace(second=0, microsecond=0)
+
+
 def get_st_and_end_time_schedule(time):
     time_hour = time.strftime("%H")
 
@@ -40,54 +44,69 @@ def get_st_and_end_time_schedule(time):
 
     return None, None
 
+
+def get_schedule_window(time):
+    st_time, end_time = get_st_and_end_time_schedule(time)
+    if st_time is None or end_time is None:
+        print(f"No schedule found for hour of {time}")
+        return None, None
+
+    st_time = datetime.combine(time.date(), datetime.strptime(st_time, "%H:%M").time())
+    end_time = datetime.combine(time.date(), datetime.strptime(end_time, "%H:%M").time())
+
+    return st_time, end_time
+
+
+def setup_and_login_browser():
+    driver = setup_browser()
+    login(driver)
+    return driver
+
+
 def process_campaigns():
     max_limit=1500000
     max_limit_interval_minutes=5
 
     load_dotenv()
 
-    now = datetime.now().replace(second=0, microsecond=0)
+    now = get_current_time()
 
     print(f"started-{now}")
 
     time_delta = now + timedelta(hours=1)
 
-    st_time, end_time = get_st_and_end_time_schedule(time_delta)
+    # Step 1: Determine schedule window
+    st_time, end_time = get_schedule_window(time_delta)
     if st_time is None or end_time is None:
-        send_log_to_newrelic()
-        print(f"No schedule found for hour of {time_delta}")
+        send_script_success_log_to_newrelic()
         return
 
-    st_time = datetime.combine(time_delta.date(), datetime.strptime(st_time, "%H:%M").time())
-    end_time =  datetime.combine(time_delta.date(), datetime.strptime(end_time, "%H:%M").time())
-
-    # Step1: Fetch the campaigns from CleverTap API
+    # Step 2: Fetch the campaigns from CleverTap API
     campaigns = fetch_campaigns(st_time, end_time)
 
-    # Step2: Setup browser and login to CleverTap
-    driver = setup_browser()
-    login(driver)
+    # Step 3: Setup browser and login to CleverTap
+    driver = setup_and_login_browser()
 
-    # Step3: Get Userbase for all schedules
+    # Step 4: Get userbase for all schedules
     campaign_info = get_user_base(driver, campaigns)
 
-    # Step4: Compute the preferred schedule time for each schedule
-    campaign_schedules, campaign_notes_dict = compute_best_schedule(campaign_info, max_limit, max_limit_interval_minutes, st_time, end_time)
+    # Step 5: Compute the preferred schedule time for campaigns
+    campaign_schedules, campaign_notes = compute_best_schedule(campaign_info, max_limit, max_limit_interval_minutes, st_time, end_time)
 
-    # Step5: Send the preferred schedule time for each schedule on slack
-    send_message(campaign_schedules, campaign_notes_dict, st_time, end_time)
+    # Step 6: Send the preferred schedule times on slack
+    send_message(campaign_schedules, campaign_notes, st_time, end_time)
 
     print(f'first pass: total_time: {datetime.now() - now}')
 
-    # Send event to newrelic
-    send_log_to_newrelic()
+    # Step 7: Send script success log to newrelic
+    send_script_success_log_to_newrelic()
 
     # if len(campaign_schedules) != 0:
         # Step6: Sleep for some 15-20 minutes & then update the schedule.
         # sleep(15*60)
 
         # now = datetime.now()
-        # campaign_update_status = update_scheduled_time(driver, campaign_schedules)
+        # campaign_update_status = update_scheduled_time(driver, campaign_schedules, campaign_notes)
 
         # Step7: update the schedule time for each schedule
         # send_message(campaign_schedules, campaign_update_status, st_time, end_time)

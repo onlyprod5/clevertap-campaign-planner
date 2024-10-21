@@ -9,6 +9,7 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+import constants
 
 def setup_browser():
     options = webdriver.ChromeOptions()
@@ -148,11 +149,18 @@ def get_user_base(driver, campaigns):
 
     return campaigns
 
-def update_scheduled_time(driver, campaign_schedules):
+def stop_campaign(driver):
+    return # TODO: UPDATE THIS CODE
+
+def update_scheduled_time(driver, campaign_schedules, campaign_notes):
     campaign_update_status = {}
 
     for campaign in campaign_schedules:
         try:
+            if campaign_notes[campaign.campaign_id] == constants.EXCEEDED_ALIGNED_LIMIT:
+                stop_campaign(driver)
+                return
+
             if campaign.preferred_schedule_time is None or campaign.preferred_schedule_time == campaign.original_schedule_time:
                 continue
 
@@ -175,7 +183,7 @@ def update_scheduled_time(driver, campaign_schedules):
             time.clear()
             time.send_keys(f"{campaign.preferred_schedule_time.hour}:{campaign.preferred_schedule_time.minute}")
 
-            sleep(100)
+            sleep(100) # TODO: ADDED FOR TESTING; TO REMOVE ONCE DONE
             time_submit_btn = driver.find_element(By.XPATH,"//span[text()='Done']")
             time_submit_btn.click()
 
@@ -188,7 +196,7 @@ def update_scheduled_time(driver, campaign_schedules):
 
             sleep(3)
 
-            if True:
+            if True: # TODO: TO UPDATE
                 campaign_update_status[campaign.campaign_id] = 'UPDATED'
             else:
                 campaign_update_status[campaign.campaign_id] = 'NOT_UPDATED'
