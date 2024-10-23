@@ -66,11 +66,20 @@ class LayoutLinkValidator(LinkValidator):
 
         if resp is not None and resp.status_code == 200:
             parsed_resp = resp.json()
-            if "detail" in parsed_resp and parsed_resp["detail"] == "Invalid Layout Id":
-                return (False, "Invalid Layout Id")
-            return (True, "Success")
+            if "detail" in parsed_resp:
+                if parsed_resp["detail"] == "Invalid Layout Id":
+                    return (False, "Invalid Layout Id")
+                if parsed_resp["detail"] == "Invalid app version":
+                    return (False, "Invalid app version, please contact the maintainer of this service")
+                if parsed_resp["detail"] == "Invalid store ID in the headers":
+                    return (False, "Invalid store ID in the headers, please contact the maintainer of this service")
+            if "error_type" in parsed_resp:
+                if parsed_resp["error_type"] == "UNHANDLED_EXCEPTION":
+                    return (False, "Unhandled exception, please recheck the pageId and layoutId")
         else:
-            return (False, "Error checking data validity from config/layout/layout-widgets api")
+            return (False,  "Error checking data validity from layout-widgets api")
+
+        return (True, "Success")
 
 
 class ProductLinkValidator(LinkValidator):
