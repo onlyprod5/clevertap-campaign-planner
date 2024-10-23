@@ -15,10 +15,17 @@ def validate_layout_link(link):
     pageId = link["pageId"]
     layoutId = link["layoutId"]
     api = f"https://api.zepto.co.in/api/v1/config/layout/layout-widgets/?page_type={pageId}&layout_id={layoutId}"
+    resp = None
+    retries = 0
 
-    resp = requests.get(api)
+    while (resp is not None) and (retries <= 2):
+        try:
+            resp = requests.get(api)
+        except:
+            retries += 1
+        
 
-    if resp.status_code == 200:
+    if resp is not None and resp.status_code == 200:
         parsed_resp = resp.json()
         if "detail" in parsed_resp and parsed_resp["detail"] == "Invalid Layout Id":
             return False
