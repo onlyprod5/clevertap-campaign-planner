@@ -64,7 +64,7 @@ class LayoutLinkValidator(LinkValidator):
 
         while (resp is not None) and (retries <= 2):
             try:
-                resp = requests.get(api)
+                resp = requests.get(api, headers=dict(validation_api_headers))
             except:
                 retries += 1
 
