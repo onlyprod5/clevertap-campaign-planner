@@ -87,7 +87,7 @@ class LayoutLinkValidator(LinkValidator):
 
 
 class ProductLinkValidator(LinkValidator):
-    def validate(self, link):
+    def validate(self):
         if not self.validate_mandatory_keys(["productId", "productVariantId"]):
             return False
 
@@ -99,8 +99,8 @@ class ProductLinkValidator(LinkValidator):
         if not variant_validation_api_headers:
             return (False, "Unable to find layout link validation API headers")
 
-        product_id = link["productId"]
-        product_variant_id = link["productVariantId"]
+        product_id = self.link["productId"]
+        product_variant_id = self.link["productVariantId"]
         retries = 0
         variant_resp = None
 
@@ -127,6 +127,16 @@ class ProductLinkValidator(LinkValidator):
             return (False, "ProductVariantId does not align with the ProductId")
 
         return (True, "Success")
+
+
+class CategoriesLinkValidator(LinkValidator):
+    def validate(self):
+        pass
+
+
+class UnclLinkValidator(LinkValidator):
+    def validate(self):
+        pass
 
 
 def LinkValidatorFactory(link, params):
