@@ -131,16 +131,19 @@ class ProductLinkValidator(LinkValidator):
 
 class CategoriesLinkValidator(LinkValidator):
     def validate(self):
+        # TODO: complete
         pass
 
 
 class UnclLinkValidator(LinkValidator):
     def validate(self):
+        # TODO: complete
         pass
 
 
 def LinkValidatorFactory(link, params):
     # TODO: determine link type and update the if block below
+    # below is a dummy piece of code
     if link == "1":
         return LayoutLinkValidator(link=link, params=params)
     elif link == "2":
