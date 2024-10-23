@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 import requests
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 
 class LinkValidator(ABC):
@@ -11,8 +11,9 @@ class LinkValidator(ABC):
 
     def extract_params(self):
         parsed_url = urlparse(self.link)
-        for key in parsed_url.query:
-            self.params[key] = parsed_url.query[key]
+        parsed_query = parse_qs(parsed_url.query)
+        for key in parsed_query:
+            self.params[key] = parsed_query[key][0]
 
     def validate_mandatory_keys(self, keys):
         for key in keys:
