@@ -78,12 +78,39 @@ class ProductLinkValidator(LinkValidator):
         if not self.validate_mandatory_keys(["productId", "productVariantId"]):
             return False
 
-        productId = link["productId"]
-        productVariantId = link["productVariantId"]
+        variant_validation_api = os.getenv("PRODUCT_LINK_PID_VALIDATION_API")
+        variant_validation_api_headers = os.getenv(
+            "PRODUCT_LINK_PID_VALIDATION_API_HEADERS")
+        if not variant_validation_api:
+            return (False, "Unable to find layout link validation API")
+        if not variant_validation_api_headers:
+            return (False, "Unable to find layout link validation API headers")
 
-        # TODO: verify the productId and productVariantId from BE, require API for this
+        product_id = link["productId"]
+        product_variant_id = link["productVariantId"]
+        retries = 0
+        variant_resp = None
 
-        return True
+        # TODO: verify the productId from BE, require API for this
+        while variant_resp is None and retries <= 3:
+            try:
+                api = variant_validation_api.format(
+                    productVariantId=product_variant_id)
+                variant_resp = requests.get(
+                    api, headers=dict(variant_validation_api_headers))
+            except:
+                variant_resp = None
+                retries += 1
+
+        if variant_resp is not None and variant_resp.status_code != 200:
+            if variant_resp.status_code == 204:
+                return (False, "No data exists for given product variant id")
+            if variant_resp.status_code == 401:
+                return (False, "Unauthorised to validate product variant id, please contact the maintainer of this service")
+
+            return (False, "Error validating product variant id")
+
+        return (True, "Success")
 
 
 def LinkValidatorFactory(link, params):
