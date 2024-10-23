@@ -104,7 +104,6 @@ class ProductLinkValidator(LinkValidator):
         retries = 0
         variant_resp = None
 
-        # TODO: verify the productId from BE, require API for this
         while variant_resp is None and retries <= 3:
             try:
                 api = variant_validation_api.format(
@@ -122,6 +121,10 @@ class ProductLinkValidator(LinkValidator):
                 return (False, "Unauthorised to validate product variant id, please contact the maintainer of this service")
 
             return (False, "Error validating product variant id")
+
+        parsed_vresp = variant_resp.json()
+        if parsed_vresp["productId"] != product_id:
+            return (False, "ProductVariantId does not align with the ProductId")
 
         return (True, "Success")
 
