@@ -48,13 +48,17 @@ class LayoutLinkValidator(LinkValidator):
         if not self.validate_mandatory_keys(["pageId", "layoutId"]):
             return (False, "pageId or layoutId not found for layout link")
 
-        validationApi = os.getenv('LAYOUT_LINK_VALIDATION_API')
-        if not validationApi:
+        validation_api = os.getenv("LAYOUT_LINK_VALIDATION_API")
+        validation_api_headers = os.getenv(
+            "LAYOUT_LINK_VALIDATION_API_HEADERS")
+        if not validation_api:
             return (False, "Unable to find layout link validation API")
+        if not validation_api_headers:
+            return (False, "Unable to find layout link validation API headers")
 
-        pageId = self.link["pageId"]
-        layoutId = self.link["layoutId"]
-        api = validationApi.format(pageId=pageId, layoutId=layoutId)
+        page_id = self.link["pageId"]
+        layout_id = self.link["layoutId"]
+        api = validation_api.format(pageId=page_id, layoutId=layout_id)
         resp = None
         retries = 0
 
