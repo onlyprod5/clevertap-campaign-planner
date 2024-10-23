@@ -4,6 +4,23 @@ import requests
 from urllib.parse import urlparse, parse_qs
 
 
+def payload_base_validation(payload):
+    if not "c_name" in payload:
+        return (False, "Missing c_name")
+    if payload["c_name"] != payload["campaignId"]:
+        return (False, "c_name not equal to campaignId")
+
+    if "url" in payload:
+        if not "page" in payload:
+            return (False, "url present but page missing")
+        if not "value" in payload:
+            return (False, "url present, page present, but value missing")
+        if payload["value"] != "layout_engine":
+            return (False, "url present, page present, but value is not `layout_engine`")
+
+    return (True, "Success")
+
+
 class LinkValidator(ABC):
     def __init__(self, link, params={}):
         self.link = link
