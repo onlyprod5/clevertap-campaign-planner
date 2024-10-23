@@ -2,10 +2,14 @@ import requests
 
 # link is a k-v pair (dict)
 
+def validate_mandatory_keys(link, keys):
+    for key in keys:
+        if not key in link:
+            return False
+    return True
+
 def validate_layout_link(link):
-    if not "pageId" in link:
-        return False
-    if not "layoutId" in link:
+    if not validate_mandatory_keys(link, ["pageId", "layoutId"]):
         return False
     
     pageId = link["pageId"]
@@ -23,9 +27,7 @@ def validate_layout_link(link):
         return False
 
 def validate_product_detail_link(link):
-    if not "productId" in link:
-        return False
-    if not "productVariantId" in link:
+    if not validate_mandatory_keys(link, ["productId", "productVariantId"]):
         return False
     
     productId = link["productId"]
