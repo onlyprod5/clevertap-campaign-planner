@@ -1,27 +1,28 @@
 
+from constants import PAYLOAD_CAMPAIGNID, PAYLOAD_CNAME, PAYLOAD_PAGE, PAYLOAD_URL
+
+
 def validate_metadata_for_ios_and_android(ios_metadata, android_metadata, campaign_name):
     if ios_metadata != android_metadata:
         return False, "different metadata/kv pair found for ios and android"
 
     return validate_metadata(ios_metadata, campaign_name)
 
-def validate_metadata(metadata, campaign_name):
-    if "c_name" not in metadata:
-        return False, "Missing c_name"
 
-    if metadata["c_name"] != campaign_name:
-        return False, "c_name not equal to campaign name"
+def validate_metadata(payload):
+    if not PAYLOAD_CNAME in payload:
+        return False, f"Missing {PAYLOAD_CNAME}"
+    if payload[PAYLOAD_CNAME] != payload[PAYLOAD_CAMPAIGNID]:
+        return False, f"{PAYLOAD_CNAME} not equal to {PAYLOAD_CAMPAIGNID}"
 
-    if "url" in metadata:
-        if "page" not in metadata:
-            return False, "url present but page missing"
-        if metadata["page"] != "layout_engine":
-            return False, "url present, page present, but value is not `layout_engine`"
+    url_present = PAYLOAD_URL in payload
+    page_present = PAYLOAD_PAGE in payload
+    page_value = payload[PAYLOAD_PAGE]
 
-    if "page" in metadata and "url" not in metadata:
-        if metadata["page"] != "layout_engine":
-            return False, "page value is not `layout_engine`; also url is missing"
+    if (url_present and not page_present) or (not url_present and page_present):
+        return False, f"Both {PAYLOAD_URL} and {PAYLOAD_PAGE} should be present concurrently"
 
-        return False, "page present but url missing"
+    if page_present and page_value != "layout_engine":
+        return False, f"{PAYLOAD_URL} present, {PAYLOAD_PAGE} present, but value is not `layout_engine`"
 
     return True, "Success"
