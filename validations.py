@@ -3,20 +3,24 @@ import os
 import requests
 from urllib.parse import urlparse, parse_qs
 
+from constants import PAYLOAD_CNAME, PAYLOAD_PAGE, PAYLOAD_URL
 
-def payload_base_validation(payload):
-    if not "c_name" in payload:
+
+def validate_payload_metadata(payload):
+    if not PAYLOAD_CNAME in payload:
         return (False, "Missing c_name")
-    if payload["c_name"] != payload["campaignId"]:
+    if payload[PAYLOAD_CNAME] != payload["campaignId"]:
         return (False, "c_name not equal to campaignId")
 
-    if "url" in payload:
-        if not "page" in payload:
-            return (False, "url present but page missing")
-        if not "value" in payload:
-            return (False, "url present, page present, but value missing")
-        if payload["value"] != "layout_engine":
-            return (False, "url present, page present, but value is not `layout_engine`")
+    url_present = PAYLOAD_URL in payload
+    page_present = PAYLOAD_PAGE in payload
+    page_value = payload[PAYLOAD_PAGE]
+
+    if (url_present and not page_present) or (not url_present and page_present):
+        return False, "Both url and page should be present concurrently"
+
+    if page_present and page_value != "layout_engine":
+        return False, "url present, page present, but value is not `layout_engine`"
 
     return (True, "Success")
 
