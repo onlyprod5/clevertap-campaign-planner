@@ -73,13 +73,12 @@ def compute_best_schedule(campaigns, max_limit, max_limit_interval_minutes, st_t
 
     get_existing_schedule_per_min(campaigns)
 
-    campaign_notes_dict = {}
     global_schedule = defaultdict(int)
 
     for campaign in campaigns:
-        preferred_time, note = get_campaign_preferred_time_and_status(campaign, global_schedule, max_limit_per_min, st_time, end_time)
+        preferred_time, notes = get_campaign_preferred_time_and_status(campaign, global_schedule, max_limit_per_min, st_time, end_time)
         campaign.preferred_schedule_time = preferred_time
-        campaign_notes_dict[campaign.campaign_id] = note
+        campaign.schedule_time_notes = notes
 
     print("After computing preferred schedule time")
     for campaign in campaigns:
@@ -89,4 +88,4 @@ def compute_best_schedule(campaigns, max_limit, max_limit_interval_minutes, st_t
     for k,v in global_schedule.items():
         print(k, " -> ", v)
 
-    return campaigns, campaign_notes_dict
+    return campaigns

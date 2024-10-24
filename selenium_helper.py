@@ -1,5 +1,6 @@
 import os
 import re
+
 import pyotp
 from time import sleep
 from datetime import datetime
@@ -10,6 +11,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import constants
+from link_validator import LinkValidatorFactory, validate_link_domain
+from validator import validate_metadata_for_ios_and_android
 
 def setup_browser():
     options = webdriver.ChromeOptions()
@@ -70,7 +73,86 @@ def get_totp_instance():
     secret = os.getenv('OTP_SECRET')
     return pyotp.TOTP(secret)
 
-def get_user_base(driver, campaigns):
+def get_campaign_metadata(driver, campaigns):
+    for campaign in campaigns:
+        try_count = 2
+        captured_exception = None
+
+        if campaign.channel != 'push':
+            continue
+
+        while try_count > 0:
+            captured_exception = None
+            try:
+                campaign_id = campaign.campaign_id
+                now = datetime.now()
+
+
+                url = f"https://eu1.dashboard.clevertap.com/{os.getenv('CT_ACC_ID')}/campaigns/campaign/{campaign_id}/report/overview"
+
+                driver.get(url)
+                WebDriverWait(driver, 10).until(
+                    EC.visibility_of_element_located(
+                        (By.XPATH, "//*[contains(text(), 'Android Settings')]"))
+                )
+
+                sleep(2)
+
+                android_settings_tab = driver.find_element(By.XPATH, "//*[contains(text(), 'Android Settings')]")
+                driver.execute_script("arguments[0].click();", android_settings_tab)
+
+                sleep(1)
+
+                ios_metadata = {}
+                ios_key_value_pairs = driver.find_elements(By.XPATH, "//div[@ios]//*[contains(text(), 'Custom key-value pairs')]/following-sibling::span")
+
+                for pair in ios_key_value_pairs:
+                    pair = driver.execute_script("return arguments[0].childNodes[0].nodeValue.trim();", pair)
+
+                    key, value = pair.split(" - ", 1)
+                    ios_metadata[key.strip()] = value.strip()
+
+                ios_settings_tab = driver.find_element(By.XPATH, "//*[contains(text(), 'iOS Settings')]")
+                driver.execute_script("arguments[0].click();", ios_settings_tab)
+
+                sleep(1)
+
+                android_metadata = {}
+                android_key_value_pairs = driver.find_elements(By.XPATH, "//div[@android]//*[contains(text(), 'Custom key-value pairs')]/following-sibling::span")
+
+                for pair in android_key_value_pairs:
+                    pair = driver.execute_script("return arguments[0].childNodes[0].nodeValue.trim();", pair)
+
+                    key, value = pair.split(" - ", 1)
+                    android_metadata[key.strip()] = value.strip()
+
+                is_valid, validation_message = validate_metadata_for_ios_and_android(android_metadata, ios_metadata, campaign.name)
+                if is_valid:
+                    campaign.custom_metadata = {"ios": ios_metadata, "android": android_metadata}
+
+                    if "url" in ios_metadata:
+                        is_valid, validation_message = validate_link_domain(ios_metadata["url"])
+                        if is_valid:
+                            link_validator_factory = LinkValidatorFactory.get_link_validator(ios_metadata["url"])
+                            is_valid, validation_message = link_validator_factory.validate()
+
+                campaign.validation_notes = validation_message
+                break
+            except Exception as e:
+                try_count -= 1
+                captured_exception = e
+
+        if try_count == 0 and captured_exception is not None:
+            print(f"Exception occurred while getting metadata of campaign : {campaign.campaign_id}, err: {captured_exception}")
+            campaign.validation_notes = "Some error occurred while validating this campaign metadata, pls check with the team"
+            # raise captured_exception # should not break the time schedule script incase this validation fails; instead send some generic error in the sheet
+
+        print(f'time taken by get_campaign_metadata: {datetime.now() - now}')
+
+    return campaigns
+
+
+def get_campaign_user_base(driver, campaigns):
     for campaign in campaigns:
         try_count = 2
         captured_exception = None
@@ -152,12 +234,12 @@ def get_user_base(driver, campaigns):
 def stop_campaign(driver):
     return # TODO: UPDATE THIS CODE
 
-def update_scheduled_time(driver, campaign_schedules, campaign_notes):
+def update_scheduled_time(driver, campaign_schedules):
     campaign_update_status = {}
 
     for campaign in campaign_schedules:
         try:
-            if campaign_notes[campaign.campaign_id] == constants.EXCEEDED_ALIGNED_LIMIT:
+            if campaign.schedule_time_notes == constants.EXCEEDED_ALIGNED_LIMIT:
                 stop_campaign(driver)
                 return
 

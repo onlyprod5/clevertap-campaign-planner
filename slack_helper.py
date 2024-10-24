@@ -8,7 +8,7 @@ from slack_sdk.errors import SlackApiError
 
 file_path = 'campaigns.csv'
 
-def send_message(campaigns, campaign_notes, st_time, end_time):
+def send_message(campaigns, st_time, end_time):
     slack_bot_token = os.getenv('SLACK_BOT_TOKEN')
     channel_id = os.getenv('SLACK_CHANNEL_ID')
 
@@ -23,7 +23,7 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
         except SlackApiError as e:
             print(f"Error sending slack message: {e.response}")
     else:
-        write_campaigns_to_csv(campaigns, campaign_notes)
+        write_campaigns_to_csv(campaigns)
         try:
 
             file = client.files_upload_v2(
@@ -112,8 +112,8 @@ def send_message(campaigns, campaign_notes, st_time, end_time):
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-def write_campaigns_to_csv(campaigns, campaign_notes):
-    header = ['Campaign ID', 'Campaign Name', 'Total Audience', 'Channel', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Notes']
+def write_campaigns_to_csv(campaigns):
+    header = ['Campaign ID', 'Campaign Name', 'Total Audience', 'Channel', 'Throttle / 5mins', 'Original Schedule Time', 'Preferred Schedule Time', 'Schedule Time Notes', 'Validations']
 
     # Open the file in write mode
     with open(file_path, mode='w', newline='') as file:
@@ -130,5 +130,6 @@ def write_campaigns_to_csv(campaigns, campaign_notes):
                 campaign.throttle,
                 campaign.original_schedule_time,
                 campaign.preferred_schedule_time,
-                campaign_notes[campaign.campaign_id]
+                campaign.schedule_time_notes,
+                campaign.validation_notes
             ])
