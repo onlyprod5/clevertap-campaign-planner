@@ -59,20 +59,26 @@ class LayoutLinkValidator(LinkValidator):
             except:
                 retries += 1
 
-        if resp is not None and resp.status_code == 200:
+        if resp is None:
+            return False, "Could not validate page and layout ids"
+
+        if resp.status_code != 200:
             parsed_resp = resp.json()
-            if "detail" in parsed_resp:
-                if parsed_resp["detail"] == "Invalid Layout Id":
-                    return False, "Invalid Layout Id"
-                if parsed_resp["detail"] == "Invalid app version":
-                    return False, "Invalid app version, please contact the maintainer of this service"
-                if parsed_resp["detail"] == "Invalid store ID in the headers":
-                    return False, "Invalid store ID in the headers, please contact the maintainer of this service"
-            if "error_type" in parsed_resp:
-                if parsed_resp["error_type"] == "UNHANDLED_EXCEPTION":
-                    return False, "Unhandled exception, please recheck the pageId and layoutId"
-        else:
-            return False,  f"Error checking data validity from layout-widgets api: status code {resp.status_code}"
+            if resp.status_code == 400:
+                if "detail" in parsed_resp:
+                    if parsed_resp["detail"] == "Invalid Layout Id":
+                        return False, "Invalid Layout Id"
+                    if parsed_resp["detail"] == "Invalid app version":
+                        return False, "Invalid app version, please contact the maintainer of this service"
+                    if parsed_resp["detail"] == "Invalid store ID in the headers":
+                        return False, "Invalid store ID in the headers, please contact the maintainer of this service"
+                return False, f"Error checking data validity from layout-widgets api: status code {resp.status_code}"
+            elif resp.status_code == 500:
+                if "error_type" in parsed_resp:
+                    if parsed_resp["error_type"] == "UNHANDLED_EXCEPTION":
+                        return False, "Unhandled exception, please recheck the pageId and layoutId"
+                return False,  f"Error checking data validity from layout-widgets api: status code {resp.status_code}"
+            return False, f"Unhandled error at page and layout id validation: status code {resp.status_code}"
 
         return True, None
 
@@ -118,6 +124,8 @@ class ProductLinkValidator(LinkValidator):
                 return False, "No data exists for given product variant id"
             if resp.status_code == 401:
                 return False, "Unauthorised to validate product variant id, please contact the maintainer of this service"
+            if resp.status_code == 400:
+                return False, "Bad request: please check the product variant id"
 
             return False, f"Error validating product variant id: status code {resp.status_code}"
 
