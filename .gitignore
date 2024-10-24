@@ -6,3 +6,4 @@ __pycache__/
 .env
 *.log
 validator.tests.py
+test_cases.txt

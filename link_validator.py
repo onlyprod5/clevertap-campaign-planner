@@ -154,7 +154,8 @@ class CategoryLinkValidator(LinkValidator):
         headers = {
             'x_requester_id': os.getenv('CMS_REQUESTER_ID'),
         }
-        response = requests.get(f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
+        response = requests.get(
+            f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
         if response.status_code == 200:
             data = response.json()
             resp_category_id = data.get("category", {}).get("id")
@@ -177,7 +178,8 @@ class CategoryLinkValidator(LinkValidator):
         if not sub_category_id or not category_id:
             return False, "no subCategoryId or categoryId provided"
 
-        valid, message = self.validate_category_subcategory(category_id, sub_category_id)
+        valid, message = self.validate_category_subcategory(
+            category_id, sub_category_id)
         if not valid:
             return False, message
 
@@ -189,7 +191,8 @@ class UnclLinkValidator(LinkValidator):
         headers = {
             'x_requester_id': os.getenv('CMS_REQUESTER_ID'),
         }
-        response = requests.get(f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
+        response = requests.get(
+            f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
         if response.status_code == 200:
             return True, "Success"
         elif response.status_code == 400:
