@@ -1,5 +1,5 @@
 
-from constants import PAYLOAD_CAMPAIGNID, PAYLOAD_CNAME, PAYLOAD_PAGE, PAYLOAD_URL
+from constants import PAYLOAD_CNAME, PAYLOAD_PAGE, PAYLOAD_URL
 
 
 def validate_metadata_for_ios_and_android(ios_metadata, android_metadata, campaign_name):
@@ -9,11 +9,11 @@ def validate_metadata_for_ios_and_android(ios_metadata, android_metadata, campai
     return validate_metadata(ios_metadata, campaign_name)
 
 
-def validate_metadata(payload):
-    if not PAYLOAD_CNAME in payload:
+def validate_metadata(payload, campaign_name):
+    if PAYLOAD_CNAME not in payload:
         return False, f"Missing {PAYLOAD_CNAME}"
-    if payload[PAYLOAD_CNAME] != payload[PAYLOAD_CAMPAIGNID]:
-        return False, f"{PAYLOAD_CNAME} not equal to {PAYLOAD_CAMPAIGNID}"
+    if payload[PAYLOAD_CNAME] != payload[campaign_name]:
+        return False, f"{PAYLOAD_CNAME} not equal to {campaign_name}"
 
     url_present = PAYLOAD_URL in payload
     page_present = PAYLOAD_PAGE in payload
