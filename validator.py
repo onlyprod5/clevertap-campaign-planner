@@ -12,7 +12,7 @@ def validate_metadata_for_ios_and_android(ios_metadata, android_metadata, campai
 def validate_metadata(payload, campaign_name):
     if PAYLOAD_CNAME not in payload:
         return False, "Missing c_name"
-    if payload[PAYLOAD_CNAME] != campaign_name:
+    if payload[PAYLOAD_CNAME].strip() != campaign_name.strip():
         return False, f"c_name not equal to {campaign_name}"
 
     url_present = PAYLOAD_URL in payload
