@@ -26,3 +26,4 @@ SCHEDULES = [
 PAYLOAD_CNAME = "c_name"
 PAYLOAD_URL = "url"
 PAYLOAD_PAGE = "page"
+PAYLOAD_CAMPAIGNID = "campaignId"
