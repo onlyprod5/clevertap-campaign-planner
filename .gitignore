@@ -5,3 +5,4 @@ campaigns.csv
 __pycache__/
 .env
 *.log
+validator.tests.py
