@@ -4,6 +4,7 @@ import requests
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
 from ast import literal_eval
+import requests
 
 
 class LinkValidator(ABC):
@@ -148,14 +149,68 @@ class ProductLinkValidator(LinkValidator):
 
 
 class CategoryLinkValidator(LinkValidator):
+
+    def validate_category_subcategory(self, category_id, sub_category_id):
+        headers = {
+            'x_requester_id': os.getenv('CMS_REQUESTER_ID'),
+        }
+        response = requests.get(f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            resp_category_id = data.get("category", {}).get("id")
+            if category_id == resp_category_id:
+                return True, "Success"
+            else:
+                return False, "Invalid category - subcategory mapping"
+        elif response.status_code == 400:
+            return False, "Invalid category or subcategory"
+        else:
+            return False, "Could not validate category/subcategory"
+
     def validate(self):
-        # TODO: complete
+        required_params = ['categoryId', 'subCategoryId']
+        if not self.validate_mandatory_keys(required_params):
+            return False, f"Missing params: {', '.join(required_params)}"
+
+        sub_category_id = self.params.get('subCategoryId', [None])[0]
+        category_id = self.params.get('categoryId', [None])[0]
+        if not sub_category_id or not category_id:
+            return False, "no subCategoryId or categoryId provided"
+
+        valid, message = self.validate_category_subcategory(category_id, sub_category_id)
+        if not valid:
+            return False, message
+
         return True, "Success"
 
 
 class UnclLinkValidator(LinkValidator):
+    def validate_subcategory(self, sub_category_id):
+        headers = {
+            'x_requester_id': os.getenv('CMS_REQUESTER_ID'),
+        }
+        response = requests.get(f"{os.getenv('CMS_HOST')}/api/v1/subcategory/{sub_category_id}", headers=headers)
+        if response.status_code == 200:
+            return True, "Success"
+        elif response.status_code == 400:
+            return False, "Invalid subcategory"
+        else:
+            return False, "Could not validate subcategory"
+
     def validate(self):
-        # TODO: complete
+        required_params = ['scid']
+        if not self.validate_mandatory_keys(required_params):
+            return False, f"Missing params: {', '.join(required_params)}"
+
+        sub_category_id = self.params.get('scid', [None])[0]
+
+        if not sub_category_id:
+            return False, "no subCategoryId provided"
+
+        valid, message = self.validate_subcategory(sub_category_id)
+        if not valid:
+            return False, message
+
         return True, "Success"
 
 
